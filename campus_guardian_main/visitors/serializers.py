@@ -12,10 +12,10 @@ class VisitorSerializer(serializers.ModelSerializer):
         read_only_fields = ['check_in', 'check_out', 'host']
 
 
-class VisitorCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Visitor
-        field = '__all__'
+# class VisitorCreateSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Visitor
+#         field = '__all__'
 
 
 class VisitorStatusSerializer(serializers.ModelSerializer):

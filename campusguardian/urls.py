@@ -1,6 +1,6 @@
-from django.contrib import admin
+# from django.contrib import admin
 from django.urls import path, include
-from rest_framework.authtoken.views import obtain_auth_token
+# from rest_framework.authtoken.views import obtain_auth_token
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -10,7 +10,7 @@ urlpatterns = [
     path('api/notifications/', include('campus_guardian_main.notifications.urls', namespace='notifications')),
     path('api/users/', include('campus_guardian_main.users.urls')),
     path('api/bus_tracker/', include('campus_guardian_main.bus_tracker.urls')),
-    path('api/management/', include('campus_guardian_main.management.urls')),
+    path('api/', include('campus_guardian_main.management.urls')),
 ]
 
 if settings.DEBUG:

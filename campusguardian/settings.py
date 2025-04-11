@@ -32,13 +32,15 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     # 'django.contrib.admin',
-    # 'django.contrib.auth',
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
     "corsheaders",
+    'webauth',
+    'django_cron',
     'campus_guardian_main.management',
     'campus_guardian_main.visitors',
     'campus_guardian_main.bus_tracker',
@@ -53,17 +55,34 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    # 'django.middleware.security.SecurityMiddleware',
+    # 'django.contrib.sessions.middleware.SessionMiddleware',  # This line is important for session management
+    # 'django.middleware.common.CommonMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.contrib.messages.middleware.MessageMiddleware',
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
-    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # 'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CRON_CLASSES = [
+    "campus_guardian_main.management.cron.DailyAttendanceAutoCreate",
+]
+
+
 CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+]
 
 ROOT_URLCONF = 'campusguardian.urls'
 
@@ -158,3 +177,27 @@ EMAIL_HOST_USER = 'movi.virtual.services@gmail.com'
 EMAIL_HOST_PASSWORD = 'fidkbcgauqezxsvu'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+]
+
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'authorization',
+    'accept',
+    'x-requested-with',
+    # Add other headers you might need
+]
+
+WEBAUTHN_RP_ID = "localhost"
+# Session configuration in settings.py
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Store session in database
+SESSION_COOKIE_AGE = 3600  # Session timeout (1 hour)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Session persists after closing the browser
+SESSION_COOKIE_DOMAIN = 'localhost'  # Only if you're using subdomains, set it for cross-domain

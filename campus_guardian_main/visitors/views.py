@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from .models import Visitor
 from .serializers import (
     VisitorSerializer,
-    VisitorCreateSerializer,
+    # VisitorCreateSerializer,/
     VisitorStatusSerializer
 )
 
@@ -15,7 +15,7 @@ class VisitorViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == 'create':
-            return VisitorCreateSerializer
+            return VisitorSerializer
         elif self.action == 'update_status':
             return VisitorStatusSerializer
         return VisitorSerializer

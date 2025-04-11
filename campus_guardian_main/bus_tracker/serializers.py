@@ -34,19 +34,27 @@ class StopTimeSerializer(serializers.ModelSerializer):
                 return "on time"
         return None
 
+
 class ScheduleSerializer(serializers.ModelSerializer):
     route = RouteSerializer(read_only=True)
-    stop_times = StopTimeSerializer(many=True)  # Allow multiple stop times
+    route_id = serializers.PrimaryKeyRelatedField(
+        queryset=Route.objects.all(),
+        source='route',
+        write_only=True,
+        required=True
+    )
+    stop_times = StopTimeSerializer(many=True)
 
     class Meta:
         model = Schedule
-        fields = ['id', 'route', 'bus', 'departure_time', 'arrival_time', 'stop_times']
+        fields = ['id', 'route', 'route_id', 'bus', 'departure_time', 'arrival_time', 'stop_times']
 
     def create(self, validated_data):
-        stop_times_data = validated_data.pop('stop_times')  # Extract stop_times data
-        schedule = Schedule.objects.create(**validated_data)  # Create the Schedule instance
+        stop_times_data = validated_data.pop('stop_times')
 
-        # Create stop times and associate them with the schedule
+        # Now validated_data includes route_id (as 'route') because of the source='route'
+        schedule = Schedule.objects.create(**validated_data)
+
         for stop_time_data in stop_times_data:
             StopTime.objects.create(schedule=schedule, **stop_time_data)
 
@@ -69,7 +77,6 @@ class ScheduleSerializer(serializers.ModelSerializer):
                 StopTime.objects.create(schedule=instance, **stop_time_data)
 
         return instance
-
 
 # class ScheduleSerializer(serializers.ModelSerializer):
 #     route = RouteSerializer(read_only=True)
@@ -131,10 +138,58 @@ class BusSerializer(serializers.ModelSerializer):
             return ScheduleSerializer(next_schedule).data
         return None
 
+
 class GPSLogSerializer(serializers.ModelSerializer):
-    bus = BusSerializer()  # Nested bus serializer to include bus info
-    timestamp = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ")
+    # For output representation
+    bus = BusSerializer(read_only=True)
+
+    # For input (write operations)
+    bus_id = serializers.PrimaryKeyRelatedField(
+        queryset=Bus.objects.all(),
+        source='bus',
+        write_only=True,
+        required=True
+    )
+
+    timestamp = serializers.DateTimeField(
+        format="%Y-%m-%dT%H:%M:%SZ",
+        required=False,  # Not required since auto_now_add is set
+        input_formats=["%Y-%m-%dT%H:%M:%SZ", "iso-8601"]
+    )
+
+    log_type = serializers.ChoiceField(
+        choices=GPSLog.LOG_TYPES,
+        default=GPSLog.ENTRY
+    )
 
     class Meta:
         model = GPSLog
-        fields = '__all__'
+        fields = [
+            'id',
+            'bus',  # Read-only (output only)
+            'bus_id',  # Write-only (input only)
+            'latitude',
+            'longitude',
+            'timestamp',
+            'log_type'
+        ]
+        read_only_fields = ['timestamp']  # Auto-set by model
+
+    def validate(self, data):
+        """
+        Additional validation for coordinates
+        """
+        if not (-90 <= data.get('latitude', 0) <= 90):
+            raise serializers.ValidationError("Latitude must be between -90 and 90")
+
+        if not (-180 <= data.get('longitude', 0) <= 180):
+            raise serializers.ValidationError("Longitude must be between -180 and 180")
+
+        return data
+
+    def create(self, validated_data):
+        """
+        Create GPS log entry
+        """
+        # timestamp is auto-set by model
+        return GPSLog.objects.create(**validated_data)
