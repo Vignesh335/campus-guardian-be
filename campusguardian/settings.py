@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     "corsheaders",
     'campus_guardian_main.management',
     'campus_guardian_main.visitors',
+    'campus_guardian_main.bus_tracker',
     'campus_guardian_main.users',
-    'campus_guardian_main.bus_management',
     'campus_guardian_main.notifications',
 ]
 
