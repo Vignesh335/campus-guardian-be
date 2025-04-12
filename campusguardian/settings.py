@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'campus_guardian_main.bus_tracker',
     'campus_guardian_main.users',
     'campus_guardian_main.notifications',
+    'campus_guardian_main.alerts',
 ]
 
 REST_FRAMEWORK = {

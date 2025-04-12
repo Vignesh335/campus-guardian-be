@@ -17,6 +17,7 @@ from rest_framework.routers import DefaultRouter
 # urls.py
 from django.urls import path, include
 from . import views
+# DailyAttendanceSummary = views.DailyAttendanceSummary
 
 # from .views import (
 #     # lecturer_registration,
@@ -29,6 +30,7 @@ router = DefaultRouter()
 
 router.register(r'management', views.LecturerViewSet)
 router.register(r'attendance', views.AttendanceViewSet)
+# router.register(r"daily-summary", DailyAttendanceSummary)
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import VoiceText, Feedback, Reply
+from .models import VoiceText, Feedback, Reply, Announcement
 from ..users.models import User
 from ..users.serializers import UserWithLoginSerializer
 
@@ -90,3 +90,7 @@ class FeedbackSerializer(serializers.ModelSerializer):
 
         return super().create(validated_data)
 
+class AnnouncementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Announcement
+        fields = '__all__'

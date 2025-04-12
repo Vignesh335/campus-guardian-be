@@ -12,6 +12,7 @@ urlpatterns = [
     path('api/bus_tracker/', include('campus_guardian_main.bus_tracker.urls')),
     path('api/communication/', include('campus_guardian_main.communicationhub.urls')),
     path('api/', include('campus_guardian_main.management.urls')),
+    path('api/alerts/', include('campus_guardian_main.alerts.urls')),
 ]
 
 if settings.DEBUG:

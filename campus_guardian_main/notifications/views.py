@@ -87,8 +87,8 @@ def approve_notification(request, notification_id):
 
     # Define the data you want to send in the PATCH request
     data = {
-        "status": "DENIED",  # Change this to "APPROVED" if needed
-        "denial_reason": "No available appointment slot"
+        "status": "APPROVED",  # Change this to "APPROVED" if needed
+        "denial_reason": ""
     }
 
     try:

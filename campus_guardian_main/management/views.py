@@ -1,7 +1,10 @@
 from rest_framework import viewsets, permissions
 
-
+from rest_framework.decorators import action
 from .models import Lecturer, Attendance
+from rest_framework.response import Response
+from calendar import monthrange
+from datetime import datetime, date
 from .serializers import LecturerSerializer, AttendanceSerializer
 
 
@@ -21,6 +24,97 @@ class AttendanceViewSet(viewsets.ModelViewSet):
     serializer_class = AttendanceSerializer
     permission_classes = [permissions.AllowAny]
 
+    def get_queryset(self):
+        # Get the filters from the query parameters
+        year = self.request.query_params.get('year')
+        month = self.request.query_params.get('month')
+        day = self.request.query_params.get('day')
+        lecturer_id = self.request.query_params.get('lecturer_id')
+        department = self.request.query_params.get('department')
+
+        queryset = Attendance.objects.select_related('lecturer')
+
+        # Apply filtering by year, month, and day if provided
+        if year:
+            try:
+                year = int(year)
+                queryset = queryset.filter(date__year=year)
+            except ValueError:
+                pass  # If the year is invalid, we just return all records
+
+        if month:
+            try:
+                month = int(month)
+                queryset = queryset.filter(date__month=month)
+            except ValueError:
+                pass  # If the month is invalid, we just return all records
+
+        if day:
+            try:
+                day = int(day)
+                queryset = queryset.filter(date__day=day)
+            except ValueError:
+                pass  # If the day is invalid, we just return all records
+
+        # Apply filtering by lecturer ID if provided
+        if lecturer_id:
+            try:
+                lecturer_id = int(lecturer_id)
+                queryset = queryset.filter(lecturer_id=lecturer_id)
+            except ValueError:
+                pass  # If the lecturer_id is invalid, we just return all records
+
+        # Apply filtering by department if provided
+        if department:
+            queryset = queryset.filter(lecturer__department__icontains=department)
+
+        return queryset
+
+    @action(detail=False, methods=['get'], url_path='daily-summary')
+    def daily_summary(self, request):
+        year = request.query_params.get('year')
+        month = request.query_params.get('month')
+        lecturer = request.query_params.get('lecturer')
+        department = request.query_params.get('department')
+
+        if not year or not month:
+            return Response({"error": "Year and month are required"}, status=400)
+
+        try:
+            year = int(year)
+            month = int(month)
+        except ValueError:
+            return Response({"error": "Invalid year or month"}, status=400)
+
+        # Get number of days in the month
+        num_days = monthrange(year, month)[1]
+        summary_data = []
+
+        for day in range(1, num_days + 1):
+            day_date = date(year, month, day)
+            queryset = Attendance.objects.filter(date=day_date)
+
+            if lecturer:
+                queryset = queryset.filter(lecturer_id=lecturer)
+            if department:
+                queryset = queryset.filter(lecturer__department__iexact=department)
+
+            present = queryset.filter(status='pr').count()
+            late = queryset.filter(status='late').count()
+            absent = queryset.filter(status='ab').count()
+            total = queryset.count() or 1
+
+            summary_data.append({
+                "date": day_date,
+                "presentCount": present,
+                "lateCount": late,
+                "absentCount": absent,
+                "presentPercentage": round((present / total) * 100, 1),
+                "latePercentage": round((late / total) * 100, 1),
+                "absentPercentage": round((absent / total) * 100, 1),
+            })
+
+        return Response(summary_data)
 
 # views.py
 # import json
