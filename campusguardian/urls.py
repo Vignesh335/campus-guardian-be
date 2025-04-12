@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/notifications/', include('campus_guardian_main.notifications.urls', namespace='notifications')),
     path('api/users/', include('campus_guardian_main.users.urls')),
     path('api/bus_tracker/', include('campus_guardian_main.bus_tracker.urls')),
+    path('api/communication/', include('campus_guardian_main.communicationhub.urls')),
     path('api/', include('campus_guardian_main.management.urls')),
 ]
 

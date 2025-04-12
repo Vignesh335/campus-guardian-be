@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'webauth',
     'django_cron',
     'campus_guardian_main.management',
+    'campus_guardian_main.communicationhub',
     'campus_guardian_main.visitors',
     'campus_guardian_main.bus_tracker',
     'campus_guardian_main.users',
